@@ -14,9 +14,10 @@ function App() {
   const [id, setId] = useState("");
   const [publicKey, setPublickKey] = useState("");
   const [privateKey, setPrivatekKey] = useState("");
-  const [accoundID, setAccountID] = useState("");
+  const [accountID, setAccountID] = useState("");
   const [phrase, setPhrase] = useState("");
   const [initialMnemonic, setInitialMnemonic] = useState("");
+  const [sender, setSender] = useState("");
 
   const [near, setNear] = useState({});
   const [balance, setBalance] = useState(0);
@@ -73,7 +74,8 @@ function App() {
   // pupil method interest album short combine spend betray climb remove analyst swift
 
   const importAccount = async () => {
-    const newAccount = await near.account(accoundID);
+    const newAccount = await near.account(accountID);
+    setSender(accountID);
 
     const balance = await newAccount.getAccountBalance();
     console.log(await newAccount.getAccessKeys());
@@ -87,28 +89,21 @@ function App() {
       alert("Account with this name already present");
     } else {
       await near.createAccount(id, publicKey);
+      setSender(id);
       console.log("STATE=========", state);
       alert(`Account Created!!! Your ID is ${id}`);
       fetchBalance(id);
     }
   };
 
-  const checkPermission = async account => {
-    let accessKeys = await account.getAccessKeys();
-    if (accessKeys[0].access_key.permission !== "FullAccess") {
-      return false;
-    }
-    return true;
-  };
-
   const sendFunds = async () => {
     try {
-      let receiver = "puranaoffice.testnet";
+      let receiver = "pakistanday.testnet";
       let networkId = "testnet";
       const keyStore = new keyStores.InMemoryKeyStore();
       console.log(":KEY========", keyStore, privateKey);
       const keyPair = KeyPair.fromString(privateKey);
-      await keyStore.setKey("testnet", accoundID, keyPair);
+      await keyStore.setKey("testnet", sender, keyPair);
 
       const config = {
         networkId,
@@ -122,7 +117,7 @@ function App() {
       // connect to NEAR! :)
       const near = await connect(config);
       // create a NEAR account object
-      const senderAccount = await near.account(accoundID);
+      const senderAccount = await near.account(sender);
 
       const yoctoAmount = parseNearAmount("5");
       const amount = new BN(yoctoAmount);
@@ -148,7 +143,7 @@ function App() {
 
       <button onClick={sendFunds}>Send Funds</button>
 
-      <input value={accoundID} onChange={e => setAccountID(e.target.value)} />
+      <input value={accountID} onChange={e => setAccountID(e.target.value)} />
       <button onClick={importAccount}>Import Account</button>
 
       <input value={phrase} onChange={e => setPhrase(e.target.value)} />
